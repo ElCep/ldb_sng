@@ -1334,9 +1334,42 @@ experiment main type: gui {
 
 		//affiche les ecran 
 		//deja dans l'on peut afficher des ecran sur les variables sans le mettre en place soit même
+		
 		monitor "saison"            value: season;
 		monitor "année"             value: yearNb;
 		monitor "mois"              value: months[monthNb];
+		// output OpenMole
+		monitor "ProdLait"			value: producedMilk;
+		monitor "biomass4milk"		value: biomass4milk;
+		monitor "milk4minifarm"		value: milk4minifarm;
+		monitor "milk4collected"	value: milk4collected;
+		monitor "milk4traditional"	value: milk4traditional;
+		monitor "milk2autoconsumption"	value: milk2autoconsumption;
+		monitor "milk2milkery"		value: milk2milkery;
+		monitor "milk2market"		value: milk2market;
+		monitor "producedMilk"		value: producedMilk;
+		monitor "minifarmExpense"	value: minifarmExpense;
+		monitor "collectedIncome"	value: collectedIncome;
+		monitor "collectedExpense"	value: collectedExpense;
+		monitor "traditionalIncome"	value: traditionalIncome;
+		monitor "traditionalExpense"	value: traditionalExpense;
+		monitor "producedCI"		value: producedCI;
+		monitor "collectedCI"		value: collectedCI;
+		monitor "biomassHead"		value: biomassHead;
+		monitor "biomassHa"			value: biomassHa;
+		monitor "cowDensity"		value: cowDensity;
+		monitor "cowNb"				value: cowNb;
+		monitor "milkingNb"			value: milkingNb;
+		monitor "collectedNb"		value: collectedNb;
+		monitor "pastoral4minifarm"		value: pastoral4minifarm;
+		monitor "pastoral4collected"	value: pastoral4collected;
+		monitor "pastoral4others"		value: pastoral4others;
+		monitor "residue4minifarm"		value: residue4minifarm;
+		monitor "residue4collected"		value: residue4collected;
+		monitor "residue4others"		value: residue4others;
+		monitor "complement4minifarm"	value: complement4minifarm;
+		monitor "complement4collected"	value: complement4collected;
+		monitor "complement4others"		value: complement4others;
 	}
 }
 
