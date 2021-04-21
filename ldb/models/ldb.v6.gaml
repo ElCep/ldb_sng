@@ -709,13 +709,24 @@ global {
 	  list<Herd> minifarms <- Herd where (each.htype  = "minifarm");
 	  list<Herd> milking_minifarms <- minifarms where (each.milking_nb != 0);
 	  minifarmNb          <- milking_minifarms sum_of (each.herd_size);
-	  minifarmMilkingNb   <- milking_minifarms sum_of (each.milking_nb);
-	  milk4minifarm       <- milking_minifarms sum_of (each.milk * each.milking_nb) / minifarmMilkingNb;
-	  minifarmIncome      <- milking_minifarms sum_of (each.income)              / max([1,length(milking_minifarms)]);
-	  minifarmExpense     <- milking_minifarms sum_of (each.expense)             / max([1,length(milking_minifarms)]);
-   	  pastoral4minifarm   <- milking_minifarms sum_of (each.pasture_biomass * each.milking_nb)     / minifarmMilkingNb;
-      residue4minifarm    <- milking_minifarms sum_of (each.residue_biomass * each.milking_nb)     / minifarmMilkingNb;
-      complement4minifarm <- milking_minifarms sum_of (each.complement_biomass * each.milking_nb)  / minifarmMilkingNb;
+	  if nb_minifarms > 0{
+	  	minifarmMilkingNb   <- milking_minifarms sum_of (each.milking_nb);
+		milk4minifarm       <- milking_minifarms sum_of (each.milk * each.milking_nb) / minifarmMilkingNb;
+		minifarmIncome      <- milking_minifarms sum_of (each.income)              / max([1,length(milking_minifarms)]);
+		minifarmExpense     <- milking_minifarms sum_of (each.expense)             / max([1,length(milking_minifarms)]);
+	   	pastoral4minifarm   <- milking_minifarms sum_of (each.pasture_biomass * each.milking_nb)     / minifarmMilkingNb;
+	    residue4minifarm    <- milking_minifarms sum_of (each.residue_biomass * each.milking_nb)     / minifarmMilkingNb;
+	    complement4minifarm <- milking_minifarms sum_of (each.complement_biomass * each.milking_nb)  / minifarmMilkingNb;
+	  } else {
+	  	minifarmMilkingNb   <- 0 ;
+	    milk4minifarm       <- 0.0 ;
+	    minifarmIncome      <- 0.0 ;
+	    minifarmExpense     <- 0.0;
+   	    pastoral4minifarm   <- 0.0;
+        residue4minifarm    <- 0.0;
+        complement4minifarm <- 0.0;
+	  }
+	  
 	  // collected farms
 	  list<Herd> collected <- Herd where (!each.transhumance and (each.htype = "minifarm" or each.collectPoint != nil));
 	  list<Herd> milking_collected <- collected where (each.milking_nb != 0);
