@@ -1349,6 +1349,39 @@ experiment main type: gui {
 		monitor "saison"            value: season;
 		monitor "année"             value: yearNb;
 		monitor "mois"              value: months[monthNb];
+	}
+}
+
+
+
+experiment openMole type: gui {
+	init {
+		rng <- "mersenne";
+		seed <- float(154787);                      // (not so) big prime number
+		loop times: 4 * 2048 { int x <- rnd(10);}   // generator warm up
+	}
+	
+	parameter 'Fichier paramètre'  var: parameter_name category: 'Simulation' init: "../includes/parameters1.v6.json";
+	parameter 'Trace'              var: trace          category: 'Simulation' init: false;
+	parameter 'Fichier sauvegarde' var: save_name      category: 'Simulation' init: "../results/simulation.csv";
+	parameter 'Sauvegarde'         var: save           category: 'Simulation' init: false;
+	
+	// Structure des mini fermes
+  	parameter 'Nb de mini fermes'             var: nb_minifarms       category: "Laiterie" min: 0 max: 100 init: 15;
+  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 init: 17;
+  	// Paramètres économiques
+	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 0 max: 100 init:30;
+	parameter 'Prix du lait livré (CFA/l)'    var: delivered_price    category: "Paramètres économiques" min: 0 max: 600 init: 320;
+	parameter 'Prix du lait collecté (CFA/l)' var: collected_price    category: "Paramètres économiques" min: 0 max: 600 init: 380;
+
+	output {
+
+		//affiche les ecran 
+		//deja dans l'on peut afficher des ecran sur les variables sans le mettre en place soit même
+		
+		monitor "saison"            value: season;
+		monitor "année"             value: yearNb;
+		monitor "mois"              value: months[monthNb];
 		// output OpenMole
 		monitor "ProdLait"			value: producedMilk;
 		monitor "biomass4milk"		value: biomass4milk;
@@ -1384,6 +1417,26 @@ experiment main type: gui {
 	}
 }
 
+experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time > 48 ) {
+	init {
+		rng <- "mersenne";
+		seed <- float(154787);                      // (not so) big prime number
+		loop times: 4 * 2048 { int x <- rnd(10);}   // generator warm up
+	}
+	
+	parameter 'Fichier paramètre'  var: parameter_name category: 'Simulation' init: "../includes/parameters1.v6.json";
+	parameter 'Trace'              var: trace          category: 'Simulation' init: false;
+	parameter 'Fichier sauvegarde' var: save_name      category: 'Simulation' init: "../results/simulation_exhaustive.csv";
+	parameter 'Sauvegarde'         var: save           category: 'Simulation' init: true;
+	
+	// Structure des mini fermes
+  	parameter 'Nb de mini fermes'             var: nb_minifarms       category: "Laiterie" min: 0 max: 100 step: 10;
+  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 10;
+  	// Paramètres économiques
+	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 0 max: 100 step: 10;
+	parameter 'Prix du lait livré (CFA/l)'    var: delivered_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
+	parameter 'Prix du lait collecté (CFA/l)' var: collected_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
 
 
+}
 
