@@ -140,6 +140,7 @@ global {
   list<patch> pastoralPatches  <- [];  // the list of patches where there is pasture;
   
   // indicators
+  int simuNb;
   float biomass4milk;
   float milk4minifarm;
   float milk4collected;
@@ -181,6 +182,7 @@ global {
   
 	// initialization
 	init {
+	  simuNb <- rnd(99999);
 	  // real variables
 	  market_milk <-   0.0;     // initial marketed milk quantity
   	  producedCI  <-   0.0;     // the total carbon impact of produced milch
@@ -784,13 +786,15 @@ global {
 	  write "  Carbon impact: " + producedCI + ', ' + collectedCI;			
 	  
 	  if (save) {
-		save [month,biomass4milk,
+		save [
+			  simuNb,nb_minifarms,cspNumber,crop_residue_price,delivered_price,collected_price, //input 
+			  month,yearNb,biomass4milk,
 			  milk4minifarm,milk4collected,milk4traditional,milk2autoconsumption,milk2milkery,milk2market,producedMilk,
 			  minifarmIncome,minifarmExpense,collectedIncome,collectedExpense,traditionalIncome,traditionalExpense,
 			  producedCI,collectedCI,biomassHead,biomassHa,
 			  cowDensity,cowNb,milkingNb,minifarmNb,collectedNb,traditionalNb,
 			  pastoral4minifarm,pastoral4collected,pastoral4others,nmPastoral4collected,nmPastoral4others,residue4minifarm,residue4collected,residue4others,complement4minifarm,complement4collected,complement4others
-		] to: save_name type:"csv" rewrite: rewrite;	  	
+		] to: save_name type:"csv" rewrite: false;	  	
 	  }
 	}
 
@@ -1392,6 +1396,7 @@ experiment openMole type: gui {
 		monitor "milk2milkery"		value: milk2milkery;
 		monitor "milk2market"		value: milk2market;
 		monitor "producedMilk"		value: producedMilk;
+		monitor "minifarmIncome"	value: minifarmIncome;
 		monitor "minifarmExpense"	value: minifarmExpense;
 		monitor "collectedIncome"	value: collectedIncome;
 		monitor "collectedExpense"	value: collectedExpense;
@@ -1420,8 +1425,7 @@ experiment openMole type: gui {
 experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time > 48 ) {
 	init {
 		rng <- "mersenne";
-		seed <- float(154787);                      // (not so) big prime number
-		loop times: 4 * 2048 { int x <- rnd(10);}   // generator warm up
+		simuNb <- 1;                      // (not so) big prime number
 	}
 	
 	parameter 'Fichier paramètre'  var: parameter_name category: 'Simulation' init: "../includes/parameters1.v6.json";
@@ -1436,7 +1440,12 @@ experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time >
 	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 0 max: 100 step: 10;
 	parameter 'Prix du lait livré (CFA/l)'    var: delivered_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
 	parameter 'Prix du lait collecté (CFA/l)' var: collected_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
-
-
+	
+	reflex save_simu {
+        
+        simuNb <- simuNb + 1;
+    }
+    
+  
 }
 
