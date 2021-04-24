@@ -251,7 +251,6 @@ global {
 		complement_ci   <- float(env_parameters["ICcomplement"]);
 		moto_ci         <- float(env_parameters["ICmoto"]);
 		car_ci          <- float(env_parameters["ICvoiture"]);
-  		write '  carbon impact: '+pasture_ci+', '+crop_residue_ci+', '+complement_ci+', '+moto_ci+', '+car_ci;		
 	}
 
 	action load_milkery_parameters {
@@ -277,15 +276,10 @@ global {
   		mf_veal_need <- float(minifarms["laitVeau"]);            // the quantity of milk to veal (l)
   		mf_complementRainSeason <- float(minifarms["complementHivernage"]); // complement quantity in rain season for minifarms
   		mf_complementDrySeason  <- float(minifarms["complementEstive"]);    // complement quantity in dry season for minifarms
-  		write '  number of minifarms: ' + nb_minifarms;
-  		write '  minifarm herd size: ' + min_mf_herd_size + '...'+max_mf_herd_size;
-  		write '  minifarm milk production: ' + min_mf_draught_milk + '...'+max_mf_draught_milk;	
-  		write '  minifarm veal need: ' + mf_veal_need;	
-  		write '  minifarm complement use (rain/dry): ' + mf_complementRainSeason + ', '+mf_complementDrySeason;	
+  		
 	}
 	
 	action load_herd_parameters {
-  	  write 'Herd parameters';
   	  map<string,unknown> herd_parameters <- parameters["troupeaux"];
   	  herd_density        <- float(herd_parameters["densite"]);
   	  milking_percentages <- herd_parameters["pourcentageAllaitantes"];
@@ -452,7 +446,6 @@ global {
   	  // load parameters
   	  do load_herd_parameters;
   	  
-  	  write 'Init herds';
 	  // nb of herds to create
 	  int nb_herds <- int(floor(grass_surface / 100 * herd_density));
 	  // the possible patches to put the herds on
@@ -850,7 +843,6 @@ species Herd {
 		      	complement_biomass <- mf_complementRainSeason * day_per_month;          // kgDM per head per month
 		      	ufl <- ufl - (mf_complementRainSeason / day_per_month * cbiomass2ufl);  // remaining UFL per head per day
 		      	max_consumed_biomass <- max_consumed_biomass - complement_biomass;      // updated ingestion possibility
-//		      	write "->" + self+" complement ufl:"+mf_complementRainSeason / cbiomass2ufl* day_per_month;
 			    // remaining pasture use
 			    pasture_biomass <- min([available_pbiomass,max_consumed_biomass]);      // kgDM per head per month
 			    ufl <- ufl - (pasture_biomass / day_per_month * pbiomass2ufl[month]);   // remaining UFL per head per day
@@ -859,19 +851,16 @@ species Herd {
 			    	pasture_biomass <- pasture_biomass - (abs(ufl) / pbiomass2ufl[month]); // bring back consumed biomass
 			    }
 		      	max_consumed_biomass <- max_consumed_biomass - pasture_biomass;         // updated ingestion possibility
-//		      	write "->" + self+" pasture ufl:"+pasture_biomass / pbiomass2ufl[month];
 		      } else {
 		      	// only complement
 		      	complement_biomass <- mf_complementDrySeason * day_per_month;           // kgDM per head per month      	
 		      	ufl <- ufl - (mf_complementDrySeason / day_per_month * cbiomass2ufl);   // UFL per head per day
 		      	max_consumed_biomass <- max_consumed_biomass - complement_biomass;      // updated ingestion possibility
-//		      	write "->" + self+" complement ufl:"+mf_complementDrySeason / cbiomass2ufl* day_per_month;
 		      }
 		      expense <- expense + (complement_biomass * milking_nb * complement_price);   // total cost for complement
 		      // residue consumption
 		      residue_biomass <- min([max_consumed_biomass,(ufl / rbiomass2ufl) * day_per_month]); // monthly residue biomass per head necessary for this production up to ingestion capacity
 		      expense <- expense + (residue_biomass * milking_nb * crop_residue_price);    // total cost of crop residue	  		
-//		      write "->" + self+" expected production:"+prod+"("+(prod / draught2produced * ufl2liter + upkeep_ufl)*day_per_month+","+complement_biomass+","+residue_biomass+","+pasture_biomass+")";
 	  		}
 	  }
 	  // total consumed biomass
