@@ -203,28 +203,21 @@ global {
 
 	// loading parameters 	
 	action load_time_parameters {
-  		write 'Time parameters';
   		map<string, unknown> time_parameters <- parameters["temps"];
   		day_per_month <- int(time_parameters["joursParMois"]);
-  		write '  days per month: '+day_per_month;
 	  	months        <- time_parameters["mois"];
-  		write '  months: '+months;
 	  	seasons       <- time_parameters["saisons"];
-  		write '  climates: ';
   		loop sname over: seasons.keys {
    			write '    climate ' + sname + ' max biomass: ' + seasons[sname]["biomasse"];	
   		}
   		sequence      <- time_parameters["sequence"];
-  		write '  climate sequence: '+sequence;
 	}
 	
 	action load_env_parameters {
-   		write 'Environment parameters';
   		// load parameters
   		map<string, unknown> env_parameters <- parameters["environnement"];
   		//
 	  	patch_surface <- patch_length * patch_length / 10000 ;      // ha per patch
-  		write '  patch surface(ha): '+patch_surface;
 		// ENVIRONNEMENT FROM SHAPEFILES
 		// pluvial crop areas
 		create PluvialCropShape from: file(env_parameters["culturePluviale"]) {
@@ -252,7 +245,6 @@ global {
 		// biomass settings
 		biomass_percentages <- env_parameters["pourcentageBiomasse"];
 		current_biomass     <- compute_biomass(0);
-  		write '  initial biomass: '+current_biomass;
 		// carbon impact settings
 		pasture_ci      <- float(env_parameters["ICpastoral"]);
 		crop_residue_ci <- float(env_parameters["ICresidus"]);
@@ -263,22 +255,17 @@ global {
 	}
 
 	action load_milkery_parameters {
-		write 'Milkery parameters';
 		// the milkery itself
   		map<string, unknown> milkery_parameters <- parameters["laiterie"];
 		create Milkery from: file(milkery_parameters["position"]) {
 			milkery_patch <- self.location;
 		}
-  		write '  milkery created at: '+milkery_patch;
 //  		collected_price    <- int(milkery_parameters["prixCollecte"]);
 //  		delivered_price    <- int(milkery_parameters["prixLivre"]);
-  		write '  milch prices: '+collected_price+', '+delivered_price;
 //  	cspNumber          <- int(milkery_parameters["nombreCSP"]);
-  		write '  CSP number: '+cspNumber;
   		
 		// creates the collect points
 		create CollectPoint from: file(milkery_parameters["pointsDeCollecte"]);
-  		write '  collect points created: ' + length(CollectPoint);
   		
   		// initializes the mini-farm
   		map<string, unknown> minifarms <- milkery_parameters["minifermes"];
@@ -301,61 +288,44 @@ global {
   	  write 'Herd parameters';
   	  map<string,unknown> herd_parameters <- parameters["troupeaux"];
   	  herd_density        <- float(herd_parameters["densite"]);
-  	  write '  herd density: ' + herd_density;
   	  milking_percentages <- herd_parameters["pourcentageAllaitantes"];
-  	  write '  milking cow proportions: ' + milking_percentages;
   	  collect_radius      <- float(herd_parameters["accesCollecte"]);
   	  water_radius        <- float(herd_parameters["accesEau"]);
   	  residue_radius      <- float(herd_parameters["accesResidus"]);
   	  road_radius         <- float(herd_parameters["accesRoute"]);
-  	  write '  distances to ressources: ' + collect_radius + ', ' + water_radius + ', ' + residue_radius;
   	  crop_residue_stock  <- float(herd_parameters["stockResidus"]);
-  	  write '  initial residue stock: ' + crop_residue_stock;
   	  complementRainSeason <- float(herd_parameters["complementHivernage"]); // complement quantity in rain season
-  	  complementDrySeason  <- float(herd_parameters["complementEstive"]);    // complement quantity in dry season
-  	  write '  complement use (rain/dry): ' + complementRainSeason + ', ' + complementDrySeason;	
+  	  complementDrySeason  <- float(herd_parameters["complementEstive"]);    // complement quantity in dry season	
   	  // small herds
-  	  write '  small herd parameters:';
+  	  
    	  map<string,unknown> small_parameters <- herd_parameters["petit"];
    	  percentage_small        <- int(small_parameters["pourcentage"]);
-  	  write '    proportion: ' + percentage_small;
 	  average_small_herd_size <- float(small_parameters["tailleMoyenne"]); // average size of a small herd
 	  small_herd_sd           <- float(small_parameters["ecartType"]);     // small herd size standard deviation
       min_small_herd_size <- int(small_parameters["tailleMin"]);
 	  max_small_herd_size <- int(small_parameters["tailleMax"]);
-  	  write '    size: ' + average_small_herd_size + ', ' + small_herd_sd + ' (' + min_small_herd_size + ',' + max_small_herd_size + ')';
 	  small_probability       <- int(small_parameters["probabiliteTranshumance"]);
-  	  write '    transhumance probability: ' + small_probability;
   	  small_consumption       <- int(small_parameters["autoconsommation"]);
-  	  write '    autoconsumption: ' + small_consumption;
   	  // medium herds
-  	  write '  medium herd parameters:';
    	  map<string,unknown> medium_parameters <- herd_parameters["moyen"];
    	  percentage_medium        <- int(medium_parameters["pourcentage"]);
-  	  write '    proportion: ' + percentage_medium;
 	  average_medium_herd_size <- float(medium_parameters["tailleMoyenne"]); // average size of a medium herd
 	  medium_herd_sd           <- float(medium_parameters["ecartType"]);     // medium herd size standard deviation
       min_medium_herd_size <- int(medium_parameters["tailleMin"]);
 	  max_medium_herd_size <- int(medium_parameters["tailleMax"]);
-  	  write '    size: ' + average_medium_herd_size + ', ' + medium_herd_sd + ' (' + min_medium_herd_size + ',' + max_medium_herd_size + ')';
 	  medium_probability       <- int(medium_parameters["probabiliteTranshumance"]);
-  	  write '    transhumance probability: ' + medium_probability;
   	  medium_consumption       <- int(medium_parameters["autoconsommation"]);
-  	  write '    autoconsumption: ' + medium_consumption;
-  	  write '  large herd parameters:';
+  	  
   	  // large herds
    	  map<string,unknown> large_parameters <- herd_parameters["grand"];
    	  percentage_large        <- int(large_parameters["pourcentage"]);
-  	  write '    proportion: ' + percentage_large;
+
  	  average_large_herd_size <- float(large_parameters["tailleMoyenne"]); // average size of a large herd
 	  large_herd_sd           <- float(large_parameters["ecartType"]);     // large herd size standard deviation
       min_large_herd_size <- int(large_parameters["tailleMin"]);
 	  max_large_herd_size <- int(large_parameters["tailleMax"]);
-  	  write '    size: ' + average_large_herd_size + ', ' + large_herd_sd + ' (' + min_large_herd_size + ',' + max_large_herd_size + ')';
 	  large_probability       <- int(large_parameters["probabiliteTranshumance"]);
-   	  write '    transhumance probability: ' + large_probability;
   	  large_consumption       <- int(large_parameters["autoconsommation"]);
-  	  write '    autoconsumption: ' + large_consumption;
   	  
 	  // herd type check
 	  if (percentage_small + percentage_medium + percentage_large != 100) {
@@ -364,77 +334,56 @@ global {
 	  }
 		
 	  // zootechnical parameters
-      write '  zootechnical parameters';
    	  map<string,unknown> zoo_parameters <- herd_parameters["zootechnie"];
       cow_ingestion_ratio  <- int(zoo_parameters["tauxIngestion"]);
-      write '    ingestion rate: ' + cow_ingestion_ratio;
       maximum_consumption_zebu     <- float(zoo_parameters["consommationMaxZebu"]);    // maximum consumption per day (kg)
       maximum_consumption_metisse  <- float(zoo_parameters["consommationMaxMetisse"]); // maximum consumption per day (kg)
       starving_limit       <- int(zoo_parameters["niveauFamine"]);      // minimum necessary per month
-      write '    physiological parameters (min,max): ' + starving_limit + ", " + maximum_consumption_zebu*day_per_month
-      		+ ", " + maximum_consumption_metisse*day_per_month ;
       complement_limit     <- int(zoo_parameters["niveauComplement"]);  // maximum of complement per day (kg)
-      write '    complement limit: ' + starving_limit;
-      write '    milk production';
 	  // conversion of 1 kg of pasture biomass into corresponding UFL depending on the month
 	  pbiomass2ufl         <- zoo_parameters["pastoralVersUFL"];
-      write '      pastoral biomass to UFL: ' + pbiomass2ufl;
 	  // conversion of 1 kg of residue biomass into corresponding UFL
 	  rbiomass2ufl         <- float(zoo_parameters["residuVersUFL"]);
-      write '      residue biomass to UFL: ' + rbiomass2ufl;
 	  // conversion of 1 kg of complement into corresponding UFL
 	  cbiomass2ufl         <- float(zoo_parameters["complementVersUFL"]);
-      write '      complement biomass to UFL: ' + cbiomass2ufl;
+  
 	  // UFL for animal upkeep per day
-      upkeep_ufl           <- float(zoo_parameters["maintenanceUFL"]);  
-      write '      upkeep UFL: ' + upkeep_ufl;
+      upkeep_ufl           <- float(zoo_parameters["maintenanceUFL"]); 
 	  // converion of 1 UFL to milk liters
 	  ufl2liter            <- float(zoo_parameters["UFLVersLitre"]);
-      write '      UFL for 1 liter: ' + ufl2liter;
 	  // conversion from draught milk to produced (human used) milk
 	  draught2produced     <- float(zoo_parameters["tireVersProduit"]);
-      write '      draught liter to produced liter: ' + draught2produced;
 	  // methane emission depending on the eated biomass
 	  methane_coefficients <- zoo_parameters["coefficientsMethane"];
-      write '      methane emission: ' + methane_coefficients;
 	  
 	}
 	
 	action load_economic_parameters {
-  	  write 'Economic parameters';
   	  map<string,unknown> eco_parameters <- parameters["economie"];		
 	  // evolution of milk market price
 	  market_prices <-  eco_parameters["prixLait"];
-  	  write '  milk prices: ' + market_prices;
 //  	  crop_residue_price <- int(eco_parameters["prixResidus"]);
-  	  write '  crop residue price: ' + crop_residue_price;
   	  complement_price <- int(eco_parameters["prixComplement"]);
-  	  write '  complement price: ' + complement_price;
 	}
 	
 	// detailed initialization
 	action init_climate { // sets the season and previous season
    		// load parameters
    		do load_time_parameters;
-   		
-  		write 'Init climate';
+   	
   		// init season
   		if (empty(sequence)) {
-//	  		season_1 <- one_of(seasons.keys);
 	  		season   <- one_of(seasons.keys);
 	  	} else {
-//	  		season_1 <- sequence[0];
 	  		season   <- sequence[0];
 	  	}
-//	  	write '  Previous season: '+season_1+', current season: '+season;
-	  	write '  Current climate: '+season;
+
   	}
 
 	action init_env { // initialize the environment
   		// load parameters
   		do load_env_parameters;
   		
-  		write 'Init environment';
 		// init counter
 		int grass_cnt <- 0;
 		// set all to pastoral surface
@@ -481,13 +430,7 @@ global {
 			biomass   <- 0.0;
 			add self to: roadPatches;
 		}
-		grass_surface <- grass_cnt * patch_surface;
- 		write '  Number of patches: '+length(patch);		
- 		write '    with '+length(pastoralPatches)+' pastoral patches';		
- 		write '    with '+length(cropPatches)    +' crop patches';		
- 		write '    with '+length(waterPatches)   +' water patches';		
- 		write '    with '+length(roadPatches)    +' road patches';		
-  		write '  Grass surface (ha): '+grass_surface;		
+		grass_surface <- grass_cnt * patch_surface;		
 	}
 
 	
@@ -495,7 +438,6 @@ global {
   		// load parameters
   		do load_milkery_parameters;
   		
-  		write 'Init milkery';
 		// inits counter and ordered list of collect points from milkery
 		int csp_count <- cspNumber;
 		list<CollectPoint> cps <-  CollectPoint sort_by (each.location distance_to milkery_patch);
@@ -516,7 +458,6 @@ global {
 	  // the possible patches to put the herds on
 	  list<patch> lst <- patch where (each.cover = "paturage1" or each.cover = "paturage2");
 	  // create the herds uniformly on the grassland
-  	  write '  Creating ' + nb_herds + ' herds';
   	  int smallNb     <- 0;
   	  int mediumNb    <- 0;
   	  int largeNb     <- 0;
@@ -563,15 +504,7 @@ global {
 	    roadAround <- !empty(roadPatches where (location distance_to each.location <= road_radius#km));
 	    if (roadAround) {roadNb <- roadNb + 1;}
 	  }
-  	  write '  Herds created: ' + nb_herds;
-  	  write '    with ' + smallNb + ' small farms,';
-  	  write '    with ' + mediumNb + ' medium farms,';
-  	  write '    with ' + largeNb + ' large farms,';
-  	  write '    and ' + collectedNb + ' farms linked to collect points,';
-   	  write '        ' + cropNb + ' farms close to crop,';
-   	  write '        ' + roadNb + ' farms close to road or track.';
-  	  
-  	  write 'Init minifarms';
+  	 
 	  // converts some herds into mini-farm
 	  int cnt <- nb_minifarms;
 	  nb_herd_stock <- 0;
@@ -588,9 +521,8 @@ global {
 	      cnt        <- cnt - 1;
 	    }
 	  }
-	  write "  " + cnt + " mini-farms not allocated over " + nb_minifarms;
+	  
 	  do compute_cow_nb();
-	  write "  " + cowNb + " cows";
 	}
 
 	// an action to update the total number of cows in the simulation
@@ -614,7 +546,6 @@ global {
 	// advances time (month and year)
 	reflex nextMonth {
 		// new monthly cycle of simulation
-		write "Year: " + yearNb + ", month: " + months[monthNb];
 		// beginning of the year
 		if (monthNb = 0) {	   
 		    do new_climate;             // generates new season quality
@@ -622,8 +553,7 @@ global {
 		    ask Herd {					// all the herds comme back
 		      transhumance <- false;
 		      do herd_make_stock;       // possibly buy crop residue stock
-		    }
-			write "  " + nb_herd_stock + " herds made stock.";			
+		    }		
 		}
 		// advances all dynamics
 		do step;
@@ -647,35 +577,29 @@ global {
 		  season_1 <- season;
 		  season <- sequence[yearNb mod length(sequence)]		;
 		}
-		write "  new season: " + season;
 	}
 	
 	// One step simulation
 	action step {
 	  // set date
-	  current_date <- current_date + nbDays[cycle mod 12] #day;
-	  write "  Initialize finance";			
+	  current_date <- current_date + nbDays[cycle mod 12] #day;		
 	  ask Herd { // reset monthly economic indicators
 	  	income  <- 0.0;
 	  	expense <- 0.0;
 	  }    
 	  // reset milk sold on market
-	  write "  Initialize marketed milk";			
 	  market_milk <- 0.0;
-	  // reset monthly collected milk
-	  write "  Initialize collected milk";			
+	  // reset monthly collected milk			
 	  ask CollectPoint {
 	    cmilk <- 0.0;
 	  }
-	  // current level of biomass per ha and then per patch
-	  write "  Distribute biomass";			
+	  // current level of biomass per ha and then per patch		
 	  current_biomass <- compute_biomass(monthNb);
 	  ask pastoralPatches {
 	    biomass <- current_biomass * patch_surface;
 	  }
 	  // computes the number of cows taking into account transhumance
 	  do compute_cow_nb;
-	  write "  " + cowNb + " cows";
 	  // monthly herd milk production
 	  ask Herd {
 	  	// number of milking cows
@@ -782,8 +706,7 @@ global {
 	  }
 	  float collected_impact <- Herd where (!each.transhumance and each.milking_nb != 0 and each.collectPoint != nil)
 	                            sum_of (each.hcarbon_impact);
-	  collectedCI <- (collected_impact + herd_km * moto_ci + milkery_km * car_ci) / max([1,milk2milkery]);
-	  write "  Carbon impact: " + producedCI + ', ' + collectedCI;			
+	  collectedCI <- (collected_impact + herd_km * moto_ci + milkery_km * car_ci) / max([1,milk2milkery]);	
 	  
 	  if (save) {
 		save [
