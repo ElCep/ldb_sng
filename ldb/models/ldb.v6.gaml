@@ -140,7 +140,7 @@ global {
   list<patch> pastoralPatches  <- [];  // the list of patches where there is pasture;
   
   // indicators
-  int simuNb;
+  int exp_simu;
   float biomass4milk;
   float milk4minifarm;
   float milk4collected;
@@ -182,7 +182,6 @@ global {
   
 	// initialization
 	init {
-	  simuNb <- rnd(99999);
 	  // real variables
 	  market_milk <-   0.0;     // initial marketed milk quantity
   	  producedCI  <-   0.0;     // the total carbon impact of produced milch
@@ -703,7 +702,7 @@ global {
 	  
 	  if (save) {
 		save [
-			  simuNb,nb_minifarms,cspNumber,crop_residue_price,delivered_price,collected_price, //input 
+			  exp_simu,cycle,nb_minifarms,cspNumber,crop_residue_price,delivered_price,collected_price, //input 
 			  month,yearNb,biomass4milk,
 			  milk4minifarm,milk4collected,milk4traditional,milk2autoconsumption,milk2milkery,milk2market,producedMilk,
 			  minifarmIncome,minifarmExpense,collectedIncome,collectedExpense,traditionalIncome,traditionalExpense,
@@ -1335,10 +1334,8 @@ experiment openMole type: gui {
 }
 
 experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time > 48 ) {
-	init {
-		rng <- "mersenne";
-		simuNb <- 1;                      // (not so) big prime number
-	}
+	
+	int simuNb <- 0;
 	
 	parameter 'Fichier paramètre'  var: parameter_name category: 'Simulation' init: "../includes/parameters1.v6.json";
 	parameter 'Trace'              var: trace          category: 'Simulation' init: false;
@@ -1346,17 +1343,41 @@ experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time >
 	parameter 'Sauvegarde'         var: save           category: 'Simulation' init: true;
 	
 	// Structure des mini fermes
-  	parameter 'Nb de mini fermes'             var: nb_minifarms       category: "Laiterie" min: 0 max: 100 step: 10;
-  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 10;
+  	parameter 'Nb de mini fermes'             var: nb_minifarms       category: "Laiterie" min: 0 max: 100 step: 20;
+  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 20;
   	// Paramètres économiques
 	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 0 max: 100 step: 10;
 	parameter 'Prix du lait livré (CFA/l)'    var: delivered_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
 	parameter 'Prix du lait collecté (CFA/l)' var: collected_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
 	
-	reflex save_simu {
-        
-        simuNb <- simuNb + 1;
-    }
+	reflex update_simu_nb {
+		simuNb <- simuNb + 1;
+		ask simulation {
+			exp_simu <- myself.simuNb ;
+		}
+		write "simuNb " + simuNb;
+	}
+    
+  
+}
+
+experiment Batch_replication type: batch repeat: 100 keep_seed: true until:( time > 48 ) {
+	
+	int simuNb <- 0;
+	
+	parameter 'Fichier paramètre'  var: parameter_name category: 'Simulation' init: "../includes/parameters1.v6.json";
+	parameter 'Trace'              var: trace          category: 'Simulation' init: false;
+	parameter 'Fichier sauvegarde' var: save_name      category: 'Simulation' init: "../results/simulation_replication.csv";
+	parameter 'Sauvegarde'         var: save           category: 'Simulation' init: true;
+	
+	
+	reflex update_simu_nb {
+		simuNb <- simuNb + 1;
+		ask simulation {
+			exp_simu <- myself.simuNb ;
+		}
+		write "simuNb " + simuNb;
+	}
     
   
 }
