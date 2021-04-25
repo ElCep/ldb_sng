@@ -1333,7 +1333,7 @@ experiment openMole type: gui {
 	}
 }
 
-experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time > 48 ) {
+experiment Batch_exhaustive type: batch repeat: 10 keep_seed: true until:( time > 24 ) {
 	
 	int simuNb <- 0;
 	
@@ -1346,7 +1346,7 @@ experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time >
   	parameter 'Nb de mini fermes'             var: nb_minifarms       category: "Laiterie" min: 0 max: 100 step: 20;
   	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 20;
   	// Paramètres économiques
-	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 0 max: 100 step: 10;
+	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 0 max: 100 step: 20;
 	parameter 'Prix du lait livré (CFA/l)'    var: delivered_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
 	parameter 'Prix du lait collecté (CFA/l)' var: collected_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
 	
