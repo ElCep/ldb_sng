@@ -1333,22 +1333,21 @@ experiment openMole type: gui {
 	}
 }
 
-experiment Batch_exhaustive type: batch repeat: 10 keep_seed: true until:( time > 24 ) {
+experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time > 24 ) {
 	
 	int simuNb <- 0;
 	
 	parameter 'Fichier paramètre'  var: parameter_name category: 'Simulation' init: "../includes/parameters1.v6.json";
 	parameter 'Trace'              var: trace          category: 'Simulation' init: false;
-	parameter 'Fichier sauvegarde' var: save_name      category: 'Simulation' init: "../results/simulation_exhaustive.csv";
 	parameter 'Sauvegarde'         var: save           category: 'Simulation' init: true;
 	
 	// Structure des mini fermes
-  	parameter 'Nb de mini fermes'             var: nb_minifarms       category: "Laiterie" min: 0 max: 100 step: 20;
-  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 20;
+  	parameter 'Nb de mini fermes'             var: nb_minifarms       category: "Laiterie" min: 0 max: 100 step: 50;
+  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 50;
   	// Paramètres économiques
-	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 0 max: 100 step: 20;
-	parameter 'Prix du lait livré (CFA/l)'    var: delivered_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
-	parameter 'Prix du lait collecté (CFA/l)' var: collected_price    category: "Paramètres économiques" min: 0 max: 600 step: 100;
+	parameter 'Prix des résidus (CFA/kg)'     var: crop_residue_price category: "Paramètres économiques" min: 20 max: 100 step: 20;
+	parameter 'Prix du lait livré (CFA/l)'    var: delivered_price    category: "Paramètres économiques" min: 200 max: 600 step: 200;
+	parameter 'Prix du lait collecté (CFA/l)' var: collected_price    category: "Paramètres économiques" min: 200 max: 600 step: 200;
 	
 	reflex update_simu_nb {
 		simuNb <- simuNb + 1;
