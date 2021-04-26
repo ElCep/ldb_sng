@@ -436,7 +436,12 @@ global {
 		int csp_count <- cspNumber;
 		list<CollectPoint> cps <-  CollectPoint sort_by (each.location distance_to milkery_patch);
 		loop while: (!empty(cps) and csp_count > 0) {  // for each one
-			ask    cps[0] { csp <- true; }
+			ask    cps[0] { 
+				if (length (cps where (csp = true) at_distance 5) = 0){ // if 
+					csp <- true;
+				} 
+				
+			}
 			remove cps[0] from: cps;
 			csp_count <- csp_count - 1;
 		}	
