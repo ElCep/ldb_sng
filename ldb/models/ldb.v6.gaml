@@ -141,6 +141,7 @@ global {
   
   // indicators
   int exp_simu;
+  int nbheard_in_csp;
   float biomass4milk;
   float milk4minifarm;
   float milk4collected;
@@ -574,6 +575,7 @@ global {
 	// One step simulation
 	action step {
 	  // set date
+	  nbheard_in_csp <- 0;
 	  current_date <- current_date + nbDays[cycle mod 12] #day;		
 	  ask Herd { // reset monthly economic indicators
 	  	income  <- 0.0;
@@ -694,8 +696,11 @@ global {
 	      herd_km <- herd_km + herds sum_of (myself.location distance_to self.location) / 1000;
 	      // accumulate km from the collect points to the milkery
 	      milkery_km <- milkery_km + (self.location distance_to milkery_patch);
+	      // comput number of heard in 5km of csp
+	      
 	    }
 	  }
+	  write nbheard_in_csp;
 	  float collected_impact <- Herd where (!each.transhumance and each.milking_nb != 0 and each.collectPoint != nil)
 	                            sum_of (each.hcarbon_impact);
 	  collectedCI <- (collected_impact + herd_km * moto_ci + milkery_km * car_ci) / max([1,milk2milkery]);	
@@ -803,6 +808,8 @@ species Herd {
 		      }
 			  expense <- expense + complement_biomass * complement_price * milking_nb;           // total complement expense
 			  biomass_to_consume <- biomass_to_consume - complement_biomass;
+			  //nbheard_in_csp <- nbheard_in_csp + 1 ;
+			  nbheard_in_csp  <- nbheard_in_csp + herd_size ;
 		    }	      
 		    // actually consumed pasture biomass per head per month
 		    pasture_biomass <- min([available_pbiomass, biomass_to_consume]);
