@@ -437,7 +437,7 @@ global {
 		list<CollectPoint> cps <-  CollectPoint sort_by (each.location distance_to milkery_patch);
 		loop while: (!empty(cps) and csp_count > 0) {  // for each one
 			ask    cps[0] { 
-				if (length (cps where (csp = true) at_distance 5) = 0){ // if 
+				if (length (cps where (csp = true) at_distance 5) = 0){ // if any CSP in radius 5km (accesCollecte) we will not overlap
 					csp <- true;
 				} 
 				
@@ -701,11 +701,9 @@ global {
 	      herd_km <- herd_km + herds sum_of (myself.location distance_to self.location) / 1000;
 	      // accumulate km from the collect points to the milkery
 	      milkery_km <- milkery_km + (self.location distance_to milkery_patch);
-	      // comput number of heard in 5km of csp
 	      
 	    }
 	  }
-	  write nbheard_in_csp;
 	  float collected_impact <- Herd where (!each.transhumance and each.milking_nb != 0 and each.collectPoint != nil)
 	                            sum_of (each.hcarbon_impact);
 	  collectedCI <- (collected_impact + herd_km * moto_ci + milkery_km * car_ci) / max([1,milk2milkery]);	
@@ -719,7 +717,7 @@ global {
 			  producedCI,collectedCI,biomassHead,biomassHa,
 			  cowDensity,cowNb,milkingNb,minifarmNb,collectedNb,traditionalNb,
 			  pastoral4minifarm,pastoral4collected,pastoral4others,nmPastoral4collected,nmPastoral4others,residue4minifarm,residue4collected,residue4others,complement4minifarm,complement4collected,complement4others
-		] to: save_name type:"csv" rewrite: false;	  	
+		] to: save_name type:"csv" rewrite: true;	  	
 	  }
 	}
 
@@ -1310,6 +1308,7 @@ experiment openMole type: gui {
 		monitor "année"             value: yearNb;
 		monitor "mois"              value: months[monthNb];
 		// output OpenMole
+		monitor "nbheard_in_csp"    value: nbheard_in_csp;
 		monitor "ProdLait"			value: producedMilk;
 		monitor "biomass4milk"		value: biomass4milk;
 		monitor "milk4minifarm"		value: milk4minifarm;
@@ -1372,7 +1371,7 @@ experiment Batch_exhaustive type: batch repeat: 1 keep_seed: true until:( time >
   
 }
 
-experiment Batch_replication type: batch repeat: 100 keep_seed: true until:( time > 48 ) {
+experiment Batch_replication type: batch repeat: 30 keep_seed: true until:( time > 5 ) {
 	
 	int simuNb <- 0;
 	
@@ -1381,15 +1380,33 @@ experiment Batch_replication type: batch repeat: 100 keep_seed: true until:( tim
 	parameter 'Fichier sauvegarde' var: save_name      category: 'Simulation' init: "../results/simulation_replication.csv";
 	parameter 'Sauvegarde'         var: save           category: 'Simulation' init: true;
 	
-	
-	reflex update_simu_nb {
-		simuNb <- simuNb + 1;
-		ask simulation {
-			exp_simu <- myself.simuNb ;
-		}
-		write "simuNb " + simuNb;
-	}
+	// Structure des mini fermes
+  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 5;
     
-  
 }
 
+experiment Batch_CSP type: batch repeat: 5 keep_seed: false until:( time > 8 ) {
+	
+	int simuNb <- 0;
+	
+	parameter 'Fichier paramètre'  var: parameter_name category: 'Simulation' init: "../includes/parameters1.v6.json";
+	parameter 'Trace'              var: trace          category: 'Simulation' init: false;
+	parameter 'Fichier sauvegarde' var: save_name      category: 'Simulation' init: "../results/simulation_csp.csv";
+	parameter 'Sauvegarde'         var: save           category: 'Simulation' init: false;
+	
+	// Structure des mini fermes
+  	parameter 'Nb de CSPs'                    var: cspNumber          category: "Laiterie" min: 0 max: 100 step: 5;
+	
+	reflex save_people {
+		write "save";
+	    save [	  cycle,nbheard_in_csp,nb_minifarms,cspNumber,crop_residue_price,delivered_price,collected_price, //input 
+				  yearNb,biomass4milk,
+				  milk4minifarm,milk4collected,milk4traditional,milk2autoconsumption,milk2milkery,milk2market,producedMilk,
+				  minifarmIncome,minifarmExpense,collectedIncome,collectedExpense,traditionalIncome,traditionalExpense,
+				  producedCI,collectedCI,biomassHead,biomassHa,
+				  cowDensity,cowNb,milkingNb,minifarmNb,collectedNb,traditionalNb,
+				  pastoral4minifarm,pastoral4collected,pastoral4others,nmPastoral4collected,nmPastoral4others,residue4minifarm,residue4collected,residue4others,complement4minifarm,complement4collected,complement4others
+			] to: "../results/simulation_csp.csv" type:"csv" rewrite: false;	 
+    }
+  
+}
